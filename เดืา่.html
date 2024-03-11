@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simple Canvas Drawing</title>
+    <style>
+        canvas {
+            border: 1px solid black;
+        }
+    </style>
+</head>
+<body>
+    <canvas id="myCanvas" width="400" height="400"></canvas>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const canvas = document.getElementById('myCanvas');
+            const context = canvas.getContext('2d');
+
+            // เริ่มต้นพื้นหลังสีขาว
+            context.fillStyle = 'white';
+            context.fillRect(0, 0, canvas.width, canvas.height);
+
+            // วาดเส้นสีดำ
+            context.beginPath();
+            context.moveTo(50, 50);
+            context.lineTo(200, 200);
+            context.lineTo(50, 200);
+            context.closePath();
+            context.lineWidth = 2;
+            context.strokeStyle = 'black';
+            context.stroke();
+
+            // เติมสีส้มในพื้นที่รอบ ๆ เส้น
+            context.fillStyle = 'orange';
+            context.fill();
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simple Canvas Drawing</title>
+    <style>
+        canvas {
+            border: 1px solid black;
+        }
+    </style>
+</head>
+<body>
+    <canvas id="myCanvas" width="400" height="400"></canvas>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const canvas = document.getElementById('myCanvas');
+            const context = canvas.getContext('2d');
+            let isDrawing = false;
+
+            // เริ่มต้นพื้นหลังสีขาว
+            context.fillStyle = 'white';
+            context.fillRect(0, 0, canvas.width, canvas.height);
+
+            canvas.addEventListener('mousedown', (event) => {
+                isDrawing = true;
+                context.beginPath();
+                context.moveTo(event.clientX - canvas.offsetLeft, event.clientY - canvas.offsetTop);
+            });
+
+            canvas.addEventListener('mousemove', (event) => {
+                if (isDrawing) {
+                    context.lineTo(event.clientX - canvas.offsetLeft, event.clientY - canvas.offsetTop);
+                    context.stroke();
+                }
+            });
+
+            canvas.addEventListener('mouseup', () => {
+                isDrawing = false;
+            });
+
+            canvas.addEventListener('mouseout', () => {
+                isDrawing = false;
+            });
+
+            // เติมสีส้มในพื้นที่รอบ ๆ เส้น
+            function fillShape() {
+                context.fillStyle = 'orange';
+                context.fill();
+            }
+
+            // เพิ่ม Event Listener เมื่อกดปุ่มใน Canvas
+            canvas.addEventListener('click', fillShape);
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Draw and Update Position</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-color: #f0f0f0;
+        }
+
+        canvas {
+            border: 1px solid black;
+        }
+
+        #controls {
+            margin-top: 20px;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <canvas id="myCanvas" width="800" height="500"></canvas>
+    <div id="controls">
+        <label for="color">Pen Color:</label>
+        <input type="color" id="color" name="color" value="#000000">
+
+        <label for="size">Pen Size:</label>
+        <input type="range" id="size" name="size" min="1" max="20" value="2">
+
+        <button id="toggleFill">Toggle Fill</button>
+        <button id="clearCanvas">Clear Canvas</button>
+        <div id="fillStatus"></div>
+    </div>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const canvas = document.getElementById('myCanvas');
+            const context = canvas.getContext('2d');
+
+            let isDrawing = false;
+            let isErasing = false;
+            let lastX = 0;
+            let lastY = 0;
+            let penColor = '#000000';
+            let penSize = 2;
+            let isFillEnabled = false;
+            let drawingData = [];
+
+            const colorInput = document.getElementById('color');
+            const sizeInput = document.getElementById('size');
+            const toggleFillButton = document.getElementById('toggleFill');
+            const clearCanvasButton = document.getElementById('clearCanvas');
+            const fillStatus = document.getElementById('fillStatus');
+
+            colorInput.addEventListener('input', (e) => {
+                penColor = e.target.value;
+            });
+
+            sizeInput.addEventListener('input', (e) => {
+                penSize = e.target.value;
+            });
+
+            toggleFillButton.addEventListener('click', () => {
+                isFillEnabled = !isFillEnabled;
+                if (isFillEnabled) {
+                    drawingData = []; // Clear drawing data when fill mode is enabled
+                }
+                updateCanvas();
+                fillStatus.innerHTML = isFillEnabled ? 'Fill mode enabled' : 'Fill mode disabled';
+            });
+
+            clearCanvasButton.addEventListener('click', () => {
+                clearCanvas();
+            });
+
+            canvas.addEventListener('mousedown', (e) => {
+                if (isErasing) {
+                    isDrawing = false;
+                    erase(context, e.offsetX, e.offsetY);
+                } else {
+                    isDrawing = true;
+                    [lastX, lastY] = [e.offsetX, e.offsetY];
+                }
+            });
+
+            canvas.addEventListener('mousemove', (e) => {
+                if (isDrawing) {
+                    drawLine(context, lastX, lastY, e.offsetX, e.offsetY);
+                    lastX = e.offsetX;
+                    lastY = e.offsetY;
+                } else if (isErasing) {
+                    erase(context, e.offsetX, e.offsetY);
+                }
+            });
+
+            canvas.addEventListener('mouseup', () => {
+                isDrawing = false;
+                isErasing = false;
+            });
+
+            canvas.addEventListener('mouseout', () => {
+                isDrawing = false;
+                isErasing = false;
+            });
+
+            canvas.addEventListener('contextmenu', (e) => {
+                e.preventDefault();
+                isErasing = true;
+            });
+
+            function drawLine(context, x1, y1, x2, y2) {
+                context.beginPath();
+                context.strokeStyle = penColor;
+                context.lineWidth = penSize;
+                context.lineCap = 'round';
+                context.moveTo(x1, y1);
+                context.lineTo(x2, y2);
+                context.stroke();
+                context.closePath();
+
+                if (!isFillEnabled) {
+                    // Save drawing data if not in fill mode
+                    drawingData.push({ x1, y1, x2, y2, color: penColor, size: penSize });
+                }
+            }
+
+            function erase(context, x, y) {
+                context.clearRect(x - penSize / 2, y - penSize / 2, penSize, penSize);
+            }
+
+            function updateCanvas() {
+                
+                if (isFillEnabled) {
+                    // Fill mode, draw saved data
+                    drawingData.forEach((data) => {
+                        context.beginPath();
+                        context.strokeStyle = data.color;
+                        context.lineWidth = data.size;
+                        context.lineCap = 'round';
+                        context.moveTo(data.x1, data.y1);
+                        context.lineTo(data.x2, data.y2);
+                        context.stroke();
+                        context.closePath();
+                    });
+                } else {
+                    // Draw mode, draw saved data and current drawing
+                    drawingData.forEach((data) => {
+                        context.beginPath();
+                        context.strokeStyle = data.color;
+                        context.lineWidth = data.size;
+                        context.lineCap = 'round';
+                        context.moveTo(data.x1, data.y1);
+                        context.lineTo(data.x2, data.y2);
+                        context.stroke();
+                        context.closePath();
+                    });
+                }
+            }
+
+            function clearCanvas() {
+                context.fillStyle = 'white';
+                context.fillRect(0, 0, canvas.width, canvas.height);
+                drawingData = [];
+                updateCanvas();
+            }
+        });
+    </script>
+</body>
+</html>
